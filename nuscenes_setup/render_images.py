@@ -183,13 +183,12 @@ def write_video(nuim: NuImages,
     out.release()
 
 def convert_mask(input_arr: np.array) -> Image:
-    translate_dict = {0:0 , 1:1 , 2:2, 3:2, 4:2, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:5, 15:5, 16:5, 17:5, 18:5, 19:5, 20:5, 21:5, 22:5, 23:5, 24:1, 31: 0}
+    translate_dict = {0:0 , 1:1 , 2:2, 3:2, 4:2, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:3, 14:4, 15:4, 16:4, 17:4, 18:4, 19:4, 20:4, 21:4, 22:4, 23:4, 24:1, 31: 0}
     palette = np.array([
     [1,1,1], # unknown
     [245, 254, 184], #driveable surface
     [95, 235, 52] , # humans
     [52, 107, 235], #moveable object
-    [232, 13, 252], #static object
     [150, 68, 5], #vehicles
 ], dtype=np.uint8)
     seg_map = np.vectorize(translate_dict.get)(input_arr)
