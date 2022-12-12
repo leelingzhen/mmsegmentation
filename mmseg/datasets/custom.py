@@ -73,16 +73,29 @@ class CustomDataset(Dataset):
             Defaults to ``dict(backend='disk')``.
     """
 
-    CLASSES = None
+    CLASSES = ('unknown', 'driveable surface', 'humans', 'moveable object', 'static object', 'vehicles')
 
-    PALETTE = None
+    PALETTE = [
+            [1,1,1], # unknown
+            [245, 254, 184], #driveable surface
+            [95, 235, 52] , # humans
+            [52, 107, 235], #moveable object
+            [232, 13, 252], #static object
+            [150, 68, 5], #vehicles
+        ]
+
+    #CLASSES = None
+
+    #PALETTE = None
 
     def __init__(self,
                  pipeline,
                  img_dir,
-                 img_suffix='.jpg',
+                 img_suffix='image.jpg',
+                 #img_suffix='.jpg',
                  ann_dir=None,
-                 seg_map_suffix='.png',
+                 #seg_map_suffix='.jpg'
+                 seg_map_suffix='annotated.png',
                  split=None,
                  data_root=None,
                  test_mode=False,
@@ -187,7 +200,8 @@ class CustomDataset(Dataset):
         Returns:
             dict: Annotation info of specified index.
         """
-
+        #print("IMG INFO:", self.img_infos[idx]['ann'])
+        #assert NotImplementedError
         return self.img_infos[idx]['ann']
 
     def pre_pipeline(self, results):
