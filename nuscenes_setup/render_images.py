@@ -8,7 +8,6 @@ import random
 import shutil
 from typing import List
 from collections import defaultdict
-from progress.bar import Bar
 
 import cv2
 import tqdm
