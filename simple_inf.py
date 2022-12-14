@@ -2,7 +2,7 @@ from mmseg.apis import inference_segmentor, init_segmentor
 import mmcv
 
 config_file = 'work_dirs/fcn_hr18_400x900_40k_nuimages/fcn_hr18_400x900_40k_nuimages.py'
-checkpoint_file = 'work_dirs/fcn_hr18_400x900_40k_nuimages/latest.pth'
+checkpoint_file = 'work_dirs/fcn_hr18_400x900_40k_nuimages/iter_40000.pth'
 
 # build the model from a config file and a checkpoint file
 model = init_segmentor(config_file, checkpoint_file, device='cuda:0')

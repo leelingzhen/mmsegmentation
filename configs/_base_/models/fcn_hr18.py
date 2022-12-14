@@ -2,7 +2,8 @@
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
-    pretrained='open-mmlab://msra/hrnetv2_w18',
+    pretrained='/hpctmp/e0406388/mmsegmentation/pretrained_weights/hrnetv2_w18-00eb2006.pth',
+#    pretrained='open-mmlab://msra/hrnetv2_w18',
     backbone=dict(
         type='HRNet',
         norm_cfg=norm_cfg,
