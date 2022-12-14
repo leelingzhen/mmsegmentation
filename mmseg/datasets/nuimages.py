@@ -74,14 +74,13 @@ class NuImages(Dataset):
     """
 
 
-    CLASSES = ('unknown', 'driveable surface', 'humans', 'moveable object', 'static object', 'vehicles')
+    CLASSES = ('unknown', 'driveable surface', 'humans', 'moveable object', 'vehicles')
 
     PALETTE = [
             [1,1,1], # unknown
             [245, 254, 184], #driveable surface
             [95, 235, 52] , # humans
             [52, 107, 235], #moveable object
-            [232, 13, 252], #static object
             [150, 68, 5], #vehicles
         ]
 

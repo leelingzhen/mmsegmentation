@@ -73,7 +73,7 @@ class CustomDataset(Dataset):
             Defaults to ``dict(backend='disk')``.
     """
 
-    CLASSES = ('unknown', 'driveable surface', 'humans', 'moveable object', 'static object', 'vehicles')
+    CLASSES = ('unknown', 'driveable surface', 'humans', 'moveable object', 'vehicles')
 
     PALETTE = [
             [1,1,1], # unknown
