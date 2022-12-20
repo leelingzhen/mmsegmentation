@@ -12,7 +12,7 @@ singularity exec $image bash << EOF > stdout.$PBS_JOBID 2> stderr.$PBS_JOBID
 PYTHONPATH=$PYTHONPATH:/home/svu/e0406388/openmmlab/lib/python3.6/site-packages
 export PYTHONPATH
 cd /hpctmp/e0406388/mmsegmentation
-bash tools/dist_train.sh configs/hrnet/fcn_hr18_400x900_40k_nuimages.py 2
+bash tools/dist_train.sh configs/hrnet/nuimages_configs/fcn_hr18_512x1024_160k_nuimages.py 2
 
 echo "TRAINING COMPLETE....."
 EOF
