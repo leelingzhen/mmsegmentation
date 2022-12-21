@@ -4,11 +4,27 @@ import json
 import argparse
 
 
+def find_latest_logfile(
+        exp_dir:str
+        ):
+    json_logs= list()
+    for f in os.listdir(exp_dir):
+        if os.path.isfile(os.path.join(exp_dir, f)) and 'json' in f:
+            json_logs.append(os.path.join(exp_dir, f))
+    latest_log = max(json_logs, key=os.path.getctime)
+    
+    return latest_log
+
+
 def plot_metrics(
-        logfile: str,
+        exp_dir:str,
         outpath: str,
         ):
-    with open(logfile) as f:
+
+    #getting latest log file from experiment
+    latest_log_path = find_latest_logfile(exp_dir)
+
+    with open(latest_log_path) as f:
         metrics = {}
         for i, json_object in enumerate(f):
             metric_object = json.loads(json_object)
@@ -55,11 +71,12 @@ def plot_metrics(
 
 def main():
     parser = argparse.ArgumentParser(description='Render loss metrics of training')
-    parser.add_argument('--logfile', type=str)
+    parser.add_argument('--exp_dir', type=str)
     parser.add_argument('--outpath', type=str, default=os.getcwd())
     args = parser.parse_args()
 
-    plot_metrics(logfile=args.logfile, outpath=args.outpath)
+    plot_metrics(exp_dir=args.exp_dir, outpath=args.outpath)
+    
 
 if __name__ == "__main__":
     main()
