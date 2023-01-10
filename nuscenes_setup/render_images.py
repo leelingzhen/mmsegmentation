@@ -1,11 +1,11 @@
 # nuScenes dev-kit.
 # Code written by Holger Caesar, 2020.
+# adapated for mmsegmentation custom datasets by Lee Ling Zhen, 2022
 
 import argparse
 import gc
 import os
 import random
-import shutil
 from typing import List
 from collections import defaultdict
 
@@ -181,21 +181,27 @@ def write_video(nuim: NuImages,
     # Finalize video.
     out.release()
 
+
 def convert_mask(input_arr: np.array) -> Image:
     translate_dict = {0:0 , 1:1 , 2:2, 3:2, 4:2, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:3, 14:4, 15:4, 16:4, 17:4, 18:4, 19:4, 20:4, 21:4, 22:4, 23:4, 24:1, 31: 0}
     palette = np.array([
-    [1,1,1], # unknown
-    [245, 254, 184], #driveable surface
-    [95, 235, 52] , # humans
-    [52, 107, 235], #moveable object
-    [150, 68, 5], #vehicles
-], dtype=np.uint8)
+        [1, 1, 1],  # unknown
+        [245, 254, 184],  # driveable surface
+        [95, 235, 52],  # humans
+        [52, 107, 235],  # moveable object
+        [150, 68, 5],  # vehicles
+    ], dtype=np.uint8)
     seg_map = np.vectorize(translate_dict.get)(input_arr)
     seg_img = Image.fromarray(np.uint8(seg_map)).convert("P")
     seg_img.putpalette(palette)
     return seg_img
 
-def write_image(nuim: NuImages, sd_token: str, mode: str, out_path: str) -> None:
+
+def write_image(
+        nuim: NuImages,
+        sd_token: str,
+        mode: str,
+        out_path: str) -> None:
     """
     Render a single image of type mode for the given sample_data.
     :param nuim: NuImages instance.
@@ -207,11 +213,11 @@ def write_image(nuim: NuImages, sd_token: str, mode: str, out_path: str) -> None
         nuim.render_image(sd_token, annotation_type='none', out_path=out_path)
 
     elif mode == 'annotated':
-        #nuim.render_image(sd_token, annotation_type='all', with_category=True, with_attributes=True, box_line_width=-1, out_path=out_path)
+        # nuim.render_image(sd_token, annotation_type='all', with_category=True, with_attributes=True, box_line_width=-1, out_path=out_path)
         semantic_mask, _ = np.array(nuim.get_segmentation(sd_token))
         semantic_mask = convert_mask(semantic_mask)
-        semantic_mask.save(out_path.replace('.jpg','.png'))
-        #mask_outpath = out_path + 'masked.jpg'
+        semantic_mask.save(out_path.replace('.jpg', '.png'))
+        # mask_outpath = out_path + 'masked.jpg'
 
     elif mode == 'trajectory':
         # sample_data = nuim.get('sample_data', sd_token)
@@ -223,22 +229,24 @@ def write_image(nuim: NuImages, sd_token: str, mode: str, out_path: str) -> None
     # Trigger garbage collection to avoid memory overflow from the render functions.
     gc.collect()
 
+
 def org_out_dir(
         data_dir: str,
         out_dir: str,
-        split: int = 0.9
+        split_type: str = 'v1.0-mini'
         ):
+    # determining split ie train/val/test
+    split_type = split_type.split('-')[-1]
+
+    # creating directories if it does not exist
     out_dir = os.path.expanduser(out_dir)
-    img_out_dir = os.path.join(out_dir, 'images')
-    mask_out_dir = os.path.join(out_dir, 'annotations')
+    img_out_dir = os.path.join(out_dir, 'images', split_type)
+    mask_out_dir = os.path.join(out_dir, 'annotations', split_type)
     if not os.path.isdir(img_out_dir) or not os.path.isdir(mask_out_dir):
         os.makedirs(img_out_dir)
-        os.makedirs(os.path.join(img_out_dir, 'train'))
-        os.makedirs(os.path.join(img_out_dir, 'val'))
         os.makedirs(mask_out_dir)
-        os.makedirs(os.path.join(mask_out_dir, 'train'))
-        os.makedirs(os.path.join(mask_out_dir, 'val'))
 
+    # actual rearranging of files happens here
     data_dir = os.path.expanduser(data_dir)
     for file_name in tqdm.tqdm(os.listdir(data_dir)):
         if os.path.isdir(os.path.join(data_dir, file_name)):
@@ -247,24 +255,6 @@ def org_out_dir(
             os.rename(os.path.join(data_dir, file_name), os.path.join(img_out_dir, file_name))
         elif 'annotated' in file_name:
             os.rename(os.path.join(data_dir, file_name), os.path.join(mask_out_dir, file_name))
-
-    split_point = int(len(os.listdir(img_out_dir)) * split)
-    for i, file_name in tqdm.tqdm(enumerate(os.listdir(img_out_dir))):
-        img_path = os.path.join(img_out_dir, file_name)
-
-        # selected path is 'train' or 'val'
-        if os.path.isdir(img_path):
-            continue
-
-        elif i <= split_point:
-            os.rename(img_path, os.path.join(img_out_dir, 'train', file_name))
-            annotated_file = file_name.rstrip('image.jpg') + 'annotated.png'
-            os.rename(os.path.join(mask_out_dir, annotated_file), os.path.join(mask_out_dir, 'train', annotated_file))
-        else:
-            os.rename(img_path, os.path.join(img_out_dir, 'val', file_name))
-            annotated_file = file_name.rstrip('image.jpg') + 'annotated.png'
-            os.rename(os.path.join(mask_out_dir, annotated_file), os.path.join(mask_out_dir, 'val', annotated_file))
-
 
 
 if __name__ == '__main__':
@@ -280,7 +270,7 @@ if __name__ == '__main__':
     parser.add_argument('--filter_categories', action='append')
     parser.add_argument('--out_type', type=str, default='image')
     parser.add_argument('--out_dir', type=str, default='~/Downloads/nuImages')
-    parser.add_argument('--split', type=float, default=0.9)
+    # parser.add_argument('--split', type=float, default=0.9)
     args = parser.parse_args()
 
     # Set random seed for reproducible image selection.
@@ -294,4 +284,4 @@ if __name__ == '__main__':
     render_images(nuim_, mode=args.mode, cam_name=args.cam_name, log_name=args.log_name, sample_limit=args.sample_limit,
                   filter_categories=args.filter_categories, out_type=args.out_type, out_dir=args.out_dir)
     # sort images
-    org_out_dir(data_dir=args.out_dir, out_dir=args.out_dir, split=args.split)
+    org_out_dir(data_dir=args.out_dir, out_dir=args.out_dir, split_type=args.version)
