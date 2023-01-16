@@ -10,7 +10,7 @@ cd ${PBS_O_WORKDIR}
 np=$(cat ${PBS_NODEFILE} | wc -l);
 mkdir -p /scratch/e0406388
 rsync -hav /hpctmp/e0406388/nuimages_segmented/ /scratch/e0406388/nuimages_segmented
-ln -s /scratch/e0406388/nuimages_segmented /hpctmp/e0406388/data
+ln -s /scratch/e0406388/nuimages_segmented /hpctmp/e0406388/mmsegmentation/data
 
 image=/app1/common/singularity-img/3.0.0/pytorch_1.3_cuda10.0-cudnn7-devel-ubuntu18.04-py36.simg
 singularity exec $image bash << EOF > stdout.$PBS_JOBID 2> stderr.$PBS_JOBID
