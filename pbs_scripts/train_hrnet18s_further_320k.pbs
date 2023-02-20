@@ -1,0 +1,18 @@
+#/bin/bash
+#PBS -P mmseg_on_nuimages
+#PBS -j oe
+#PBS -N training_nuimages_on_mmseg
+#PBS -q volta_gpu
+#PBS -l select=1:ncpus=10:mem=50gb:ngpus=2
+#PBS -l walltime=72:00:00
+cd ${PBS_O_WORKDIR}
+np=$(cat ${PBS_NODEFILE} | wc -l);
+image=/app1/common/singularity-img/3.0.0/pytorch_1.3_cuda10.0-cudnn7-devel-ubuntu18.04-py36.simg
+singularity exec $image bash << EOF > stdout.$PBS_JOBID 2> stderr.$PBS_JOBID
+PYTHONPATH=$PYTHONPATH:/home/svu/e0406388/openmmlab/lib/python3.6/site-packages
+export PYTHONPATH
+cd /hpctmp/e0406388/mmsegmentation
+bash tools/dist_train.sh configs/hrnet/nuimages_configs/fcn_hr18s_512x1024_160k_nuimages.py 2 --workdir work_dirs/fcn_hr18s_512x1024_further_320k_nuimages --load_from work_dirs/fcn_hr18s_512x1024_160k_nuimages/iter_160000.pth
+
+echo "TRAINING COMPLETE....."
+EOF
