@@ -18,7 +18,7 @@ PYTHONPATH=$PYTHONPATH:/home/svu/e0406388/openmmlab/lib/python3.6/site-packages
 export PYTHONPATH
 
 cd /hpctmp/e0406388/mmsegmentation
-bash tools/dist_train.sh configs/hrnet/nuimages_configs/fcn_hr18s_512x1024_320k_nuimages.py 2
+bash tools/dist_train.sh configs/hrnet/nuimages_configs/fcn_hr18s_512x1024_320k_nuimages_lr_0.005.py 2
 
 echo "TRAINING COMPLETE....."
 EOF
