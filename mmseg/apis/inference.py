@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap, Normalize
 import mmcv
 import torch
 from mmcv.parallel import collate, scatter
@@ -111,6 +112,7 @@ def show_result_pyplot(model,
                        opacity=0.5,
                        title='',
                        block=True,
+                       legend=True,
                        out_file=None):
     """Visualize the segmentation results on the image.
 
@@ -132,14 +134,33 @@ def show_result_pyplot(model,
         out_file (str or None): The path to write the image.
             Default: None.
     """
+
     if hasattr(model, 'module'):
         model = model.module
     img = model.show_result(
         img, result, palette=palette, show=False, opacity=opacity)
+
+    # creating a legend for pyplot
+    colors = model.PALETTE
+    for i, color in enumerate(colors):
+        norm_p = [0, 0, 0]
+        for j, p in enumerate(color):
+            norm_p[j] = p/255
+        colors[i] = norm_p
+
+    print("normalised.")
+    cmap = ListedColormap(colors)
+
+    labels = model.CLASSES
+    patches = [plt.plot([], [], marker="s", ms=10, ls="", mec=None, color=cmap(i),
+                        label=labels[i])[0] for i in range(len(labels))]
     plt.figure(figsize=fig_size)
     plt.imshow(mmcv.bgr2rgb(img))
     plt.title(title)
     plt.tight_layout()
+    if legend:
+        plt.legend(handles=patches, loc='upper left', bbox_to_anchor=(1.05, 1))
     plt.show(block=block)
+
     if out_file is not None:
         mmcv.imwrite(img, out_file)
